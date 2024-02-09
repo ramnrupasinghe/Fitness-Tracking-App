@@ -1,8 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FitnessTracker
 {
@@ -18,7 +16,12 @@ namespace FitnessTracker
                 Console.WriteLine("Fitness Tracker");
                 Console.WriteLine("1. Log a Workout");
                 Console.WriteLine("2. View Workouts");
-                Console.WriteLine("3. Exit");
+                Console.WriteLine("3. Calculate Total Calories Burned");
+                Console.WriteLine("4. Sort Workouts by Duration");
+                Console.WriteLine("5. Filter Workouts by Type");
+                Console.WriteLine("6. Edit/Delete Workouts");
+                Console.WriteLine("7. Export Workouts to File");
+                Console.WriteLine("8. Exit");
                 Console.Write("Enter your choice: ");
                 string choice = Console.ReadLine();
 
@@ -31,6 +34,21 @@ namespace FitnessTracker
                         ViewWorkouts(workouts);
                         break;
                     case "3":
+                        CalculateTotalCaloriesBurned(workouts);
+                        break;
+                    case "4":
+                        SortWorkoutsByDuration(workouts);
+                        break;
+                    case "5":
+                        FilterWorkoutsByType(workouts);
+                        break;
+                    case "6":
+                        EditOrDeleteWorkouts(workouts);
+                        break;
+                    case "7":
+                        ExportWorkoutsToFile(workouts);
+                        break;
+                    case "8":
                         continueLogging = false;
                         break;
                     default:
@@ -69,13 +87,94 @@ namespace FitnessTracker
                 }
             }
         }
+
+        static void CalculateTotalCaloriesBurned(List<Workout> workouts)
+        {
+            int totalCaloriesBurned = workouts.Sum(w => w.CaloriesBurned);
+            Console.WriteLine($"Total calories burned: {totalCaloriesBurned}");
+        }
+
+        static void SortWorkoutsByDuration(List<Workout> workouts)
+        {
+            var sortedWorkouts = workouts.OrderBy(w => w.Duration).ToList();
+            ViewWorkouts(sortedWorkouts);
+        }
+
+        static void FilterWorkoutsByType(List<Workout> workouts)
+        {
+            Console.Write("Enter the type of workout to filter (e.g., Running, Cycling, Weightlifting): ");
+            string type = Console.ReadLine();
+            var filteredWorkouts = workouts.Where(w => w.Type.Equals(type, StringComparison.OrdinalIgnoreCase)).ToList();
+            ViewWorkouts(filteredWorkouts);
+        }
+
+        static void EditOrDeleteWorkouts(List<Workout> workouts)
+        {
+            Console.WriteLine("Choose an option:");
+            Console.WriteLine("1. Edit Workout");
+            Console.WriteLine("2. Delete Workout");
+            string option = Console.ReadLine();
+
+            if (option == "1")
+            {
+                Console.WriteLine("Enter the index of the workout to edit:");
+                int index = int.Parse(Console.ReadLine()) - 1;
+                if (index >= 0 && index < workouts.Count)
+                {
+                    Console.Write("Enter the new type of workout: ");
+                    workouts[index].Type = Console.ReadLine();
+                    Console.Write("Enter the new duration (in minutes): ");
+                    workouts[index].Duration = int.Parse(Console.ReadLine());
+                    Console.Write("Enter the new calories burned: ");
+                    workouts[index].CaloriesBurned = int.Parse(Console.ReadLine());
+                    Console.WriteLine("Workout updated successfully!");
+                }
+                else
+                {
+                    Console.WriteLine("Invalid index.");
+                }
+            }
+            else if (option == "2")
+            {
+                Console.WriteLine("Enter the index of the workout to delete:");
+                int index = int.Parse(Console.ReadLine()) - 1;
+                if (index >= 0 && index < workouts.Count)
+                {
+                    workouts.RemoveAt(index);
+                    Console.WriteLine("Workout deleted successfully!");
+                }
+                else
+                {
+                    Console.WriteLine("Invalid index.");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Invalid option.");
+            }
+        }
+
+        static void ExportWorkoutsToFile(List<Workout> workouts)
+        {
+            Console.Write("Enter the file path to export workouts: ");
+            string filePath = Console.ReadLine();
+            using (System.IO.StreamWriter file =
+                new System.IO.StreamWriter(filePath))
+            {
+                foreach (var workout in workouts)
+                {
+                    file.WriteLine($"{workout.Type},{workout.Duration},{workout.CaloriesBurned}");
+                }
+            }
+            Console.WriteLine("Workouts exported to file successfully!");
+        }
     }
 
     class Workout
     {
-        public string Type { get; }
-        public int Duration { get; }
-        public int CaloriesBurned { get; }
+        public string Type { get; set; }
+        public int Duration { get; set; }
+        public int CaloriesBurned { get; set; }
 
         public Workout(string type, int duration, int caloriesBurned)
         {
